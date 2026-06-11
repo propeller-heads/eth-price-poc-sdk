@@ -1,7 +1,7 @@
 """HTTP client for the Price-of-Ethereum PoC dataset.
 
 Wraps the public API at /api/* (live mode) and falls back to the static
-data.json / coverage_static.json snapshots when the live tunnel is down.
+data.json / coverage_static.json snapshots when the live API is unreachable.
 No fake data: if the live endpoint and the static fallback both fail
 for a given resource, the method raises.
 """
@@ -25,8 +25,7 @@ class EthPricePoCClient:
     """Minimal client. Construct with a base URL like:
 
         EthPricePoCClient("https://web-kappa-seven-94.vercel.app")
-        EthPricePoCClient("http://<host>:8888/eth-price")     # self-hosted LAN
-        EthPricePoCClient("http://localhost:8888/eth-price")  # local nginx
+        EthPricePoCClient("http://localhost:8000")            # local dev server
 
     The default points at the public Vercel deployment, which proxies to
     the live backend and serves the static fallback when the backend is

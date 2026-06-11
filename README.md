@@ -24,7 +24,7 @@ pip install -e .
 from eth_price_poc import client
 
 # Default base resolves to the public Vercel site, which proxies through
-# to the live API on the self-hosted backend. Override with
+# to the live API. Override with
 # EthPricePoCClient(base=...) to point at your own deployment.
 c = client()
 
