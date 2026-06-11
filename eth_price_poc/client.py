@@ -14,7 +14,7 @@ from typing import Any, Iterable
 import requests
 
 
-DEFAULT_BASE = "https://web-kappa-seven-94.vercel.app"
+DEFAULT_BASE = "https://eth-price-poc.fly.dev"
 
 
 class EthPricePoCDataUnavailable(RuntimeError):
@@ -24,12 +24,11 @@ class EthPricePoCDataUnavailable(RuntimeError):
 class EthPricePoCClient:
     """Minimal client. Construct with a base URL like:
 
-        EthPricePoCClient("https://web-kappa-seven-94.vercel.app")
+        EthPricePoCClient("https://eth-price-poc.fly.dev")
         EthPricePoCClient("http://localhost:8000")            # local dev server
 
-    The default points at the public Vercel deployment, which proxies to
-    the live backend and serves the static fallback when the backend is
-    unreachable. Override for local / private deployments.
+    The default points at the live deployment, which serves both the API and
+    the static fallback. Override for local / private deployments.
     """
 
     def __init__(self, base: str = DEFAULT_BASE, *, timeout: float = 10.0,
