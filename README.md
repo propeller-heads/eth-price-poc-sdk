@@ -24,7 +24,7 @@ pip install "eth-price-poc-sdk[plot] @ git+https://github.com/mayGBUgiri/eth-pri
 ```python
 from eth_price_poc import client
 
-# Default base resolves to the public Vercel site, which proxies through
+# Default base resolves to the public the site host site, which proxies through
 # to the live API. Override with
 # EthPricePoCClient(base=...) to point at your own deployment.
 c = client()
