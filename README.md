@@ -14,7 +14,7 @@ against the same API.
 ## Install
 
 ```bash
-pip install "eth-price-poc-sdk[plot] @ git+https://github.com/mayGBUgiri/eth-price-poc-sdk.git"
+pip install "eth-price-poc-sdk[plot] @ git+https://github.com/propeller-heads/eth-price-poc-sdk.git"
 # or, from a checkout: pip install -e .
 # (Until we publish to PyPI; the package name will be `eth-price-poc-sdk`.)
 ```
