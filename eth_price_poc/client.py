@@ -14,7 +14,7 @@ from typing import Any, Iterable
 import requests
 
 
-DEFAULT_BASE = "https://eth-price-poc.fly.dev"
+DEFAULT_BASE = "https://marketprice.xyz"
 
 
 class EthPricePoCDataUnavailable(RuntimeError):
@@ -24,7 +24,7 @@ class EthPricePoCDataUnavailable(RuntimeError):
 class EthPricePoCClient:
     """Minimal client. Construct with a base URL like:
 
-        EthPricePoCClient("https://eth-price-poc.fly.dev")
+        EthPricePoCClient("https://marketprice.xyz")
         EthPricePoCClient("http://localhost:8000")            # local dev server
 
     The default points at the live deployment, which serves both the API and

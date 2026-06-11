@@ -22,7 +22,7 @@ plot   = ["pandas>=1.5", "matplotlib>=3.5"]
 [project.urls]
 Repository = "https://github.com/propeller-heads/eth-price-poc-sdk"
 Issues     = "https://github.com/propeller-heads/eth-price-poc-sdk/issues"
-LiveSite   = "https://eth-price-poc.fly.dev/"
+LiveSite   = "https://marketprice.xyz/"
 
 [tool.setuptools.packages.find]
 where = ["."]
