@@ -1,0 +1,29 @@
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "eth-price-poc-sdk"
+version = "0.1.0"
+description = "Tiny Python client for the Price-of-Ethereum PoC dataset (block-by-block on-chain depth via Fynd + Tycho)."
+readme = "README.md"
+requires-python = ">=3.9"
+license = { text = "MIT" }
+authors = [{ name = "PropellerHeads" }]
+keywords = ["defi", "fynd", "tycho", "depth", "ethereum", "trader-data"]
+dependencies = [
+    "requests>=2.28",
+]
+
+[project.optional-dependencies]
+pandas = ["pandas>=1.5"]
+plot   = ["pandas>=1.5", "matplotlib>=3.5"]
+
+[project.urls]
+Repository = "https://github.com/mayGBUgiri/eth-price-poc-sdk"
+Issues     = "https://github.com/mayGBUgiri/eth-price-poc-sdk/issues"
+LiveSite   = "https://web-kappa-seven-94.vercel.app/"
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["eth_price_poc*"]
