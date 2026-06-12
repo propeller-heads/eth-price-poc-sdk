@@ -41,6 +41,40 @@ df = c.history_as_dataframe(limit=720)
 print(df.head())
 ```
 
+## Getting a Fynd API key
+
+The default base (`https://marketprice.xyz`) is public — no API key is
+needed to pull the hosted dataset.
+
+You need a Fynd (Tycho) API key when you run your own deployment of
+[eth-price-poc](https://github.com/propeller-heads/eth-price-poc): the
+collector quotes against a local Fynd instance, and Fynd needs the key
+to read on-chain liquidity from Tycho.
+
+1. Open the Fynd portal bot on Telegram:
+   [t.me/FyndPortalBot](https://t.me/FyndPortalBot)
+2. Start the bot and follow the prompts to request an API key.
+3. Export it wherever Fynd runs:
+
+   ```bash
+   export TYCHO_API_KEY=<your key>
+   ```
+
+   For a Fly.io deployment:
+
+   ```bash
+   fly secrets set --app <your-app> TYCHO_API_KEY='<your key>'
+   ```
+
+4. Point the SDK at your deployment:
+
+   ```python
+   c = client(base="https://your-deployment.example.com")
+   ```
+
+See the [eth-price-poc README](https://github.com/propeller-heads/eth-price-poc#readme)
+for full deployment instructions.
+
 ## What you can do with this that the website can't show you
 
 - Plot the **full bookmap** at custom resolution (the site renders 96
