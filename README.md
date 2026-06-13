@@ -14,8 +14,7 @@ against the same API.
 ## Install
 
 ```bash
-pip install "eth-price-poc-sdk[plot] @ git+https://github.com/propeller-heads/eth-price-poc-sdk.git"
-# or, from a checkout: pip install -e .
+pip install -e ./sdk
 # (Until we publish to PyPI; the package name will be `eth-price-poc-sdk`.)
 ```
 
@@ -36,10 +35,55 @@ hist   = c.history(limit=720)  # rolling window
 
 print(snap["block"], snap["spot_price"])
 
-# Optional pandas integration (install with: pip install -e .[pandas])
+# Optional pandas integration (install with: pip install -e ./sdk[pandas])
 df = c.history_as_dataframe(limit=720)
 print(df.head())
 ```
+
+## Generate your own data
+
+The hosted dataset at [marketprice.xyz](https://marketprice.xyz) already serves
+**real-time** ETH/USDC depth (current block, ~12s behind chain) plus months of
+history — no key needed, just `client()` above.
+
+If you want your own independent feed — other token pairs, lower latency, or no
+dependency on our uptime — run the generator against your own Fynd instance.
+Our cloud gives you the historical archive you can't recreate; your machine
+produces the live numbers.
+
+```bash
+pip install "eth-price-poc-sdk[generate]"
+```
+
+**1. Get a Fynd (Tycho) API key.** Open the portal bot on Telegram —
+[t.me/FyndPortalBot](https://t.me/FyndPortalBot) — and follow the prompts.
+
+**2. Run Fynd locally** with the key (see Fynd's own docs for the binary):
+
+```bash
+export TYCHO_API_KEY=<your key>
+```
+
+**3. Generate snapshots** from your local Fynd:
+
+```bash
+python -m eth_price_poc.generate.run_local --fynd-base http://127.0.0.1:3000
+```
+
+Or from Python, for any pair Tycho indexes:
+
+```python
+from eth_price_poc.generate import PairConfig, TokenSpec, collect_snapshot, NullSink
+
+cfg = PairConfig(fynd_base_url="http://127.0.0.1:3000")   # ETH/USDC by default
+snap, _payload = collect_snapshot(cfg, NullSink())
+print(snap["block"], snap["spot_price"], snap["robust_mid"])
+```
+
+`PairConfig` is the only thing that changes per token pair — swap `token_in` /
+`token_out` (`TokenSpec(address, symbol, decimals)`) and the same
+depth/curve/route data falls out. The download client (`client()`) needs no key
+— it only reads our server; the key is solely for running your own Fynd.
 
 ## What you can do with this that the website can't show you
 

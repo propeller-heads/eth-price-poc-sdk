@@ -16,8 +16,9 @@ dependencies = [
 ]
 
 [project.optional-dependencies]
-pandas = ["pandas>=1.5"]
-plot   = ["pandas>=1.5", "matplotlib>=3.5"]
+pandas   = ["pandas>=1.5"]
+plot     = ["pandas>=1.5", "matplotlib>=3.5"]
+generate = ["requests>=2.28"]   # run your own Fynd and produce live data locally
 
 [project.urls]
 Repository = "https://github.com/propeller-heads/eth-price-poc-sdk"
