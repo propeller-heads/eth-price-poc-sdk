@@ -3,7 +3,7 @@
 Tiny Python client for the Price-of-Ethereum PoC dataset.
 
 Pulls live or static depth/route snapshots from the public deployment
-(or any compatible API base) so you can analyse the data locally —
+(or any compatible API base) so you can analyse the data locally:
 plot it, write it to a notebook, run your own metrics on top.
 
 The landing page shows the headline charts; everything else
@@ -43,10 +43,10 @@ print(df.head())
 
 The hosted dataset at [marketprice.xyz](https://marketprice.xyz) already serves
 **real-time** ETH/USDC depth (current block, ~12s behind chain) plus months of
-history — no key needed, just `client()` above.
+history. No key needed, just `client()` above.
 
-If you want your own independent feed — other token pairs, lower latency, or no
-dependency on our uptime — run the generator against your own Fynd instance.
+Want your own independent feed (other token pairs, lower latency, or no
+dependency on our uptime)? Run the generator against your own Fynd instance.
 Our cloud gives you the historical archive you can't recreate; your machine
 produces the live numbers.
 
@@ -54,8 +54,8 @@ produces the live numbers.
 pip install "eth-price-poc-sdk[generate]"
 ```
 
-**1. Get a Fynd (Tycho) API key.** Open the portal bot on Telegram —
-[t.me/FyndPortalBot](https://t.me/FyndPortalBot) — and follow the prompts.
+**1. Get a Fynd (Tycho) API key.** Open the Fynd portal bot on Telegram,
+[t.me/FyndPortalBot](https://t.me/FyndPortalBot), and follow the prompts.
 
 **2. Run Fynd locally** with the key (see Fynd's own docs for the binary):
 
@@ -79,10 +79,10 @@ snap, _payload = collect_snapshot(cfg, NullSink())
 print(snap["block"], snap["spot_price"], snap["robust_mid"])
 ```
 
-`PairConfig` is the only thing that changes per token pair — swap `token_in` /
+`PairConfig` is the only thing that changes per token pair. Swap `token_in` and
 `token_out` (`TokenSpec(address, symbol, decimals)`) and the same
-depth/curve/route data falls out. The download client (`client()`) needs no key
-— it only reads our server; the key is solely for running your own Fynd.
+depth/curve/route data falls out. The download client (`client()`) needs no key:
+it only reads our server. The key is solely for running your own Fynd.
 
 ## What you can do with this that the website can't show you
 
@@ -111,7 +111,7 @@ depth/curve/route data falls out. The download client (`client()`) needs no key
 
 If the live API is unreachable, `client()` will transparently fall back
 to the static `data.json` and `coverage_static.json` snapshots served
-from the same origin — same shape, frozen at the last refresh.
+from the same origin. Same shape, frozen at the last refresh.
 
 ## Schema reference
 
@@ -152,5 +152,5 @@ was computed (`anchored_bisection` for headline targets,
 ## Roadmap
 
 ETH is served priced in **USDC and USDT** today (`client(pair="ETH/USDT")`).
-The collector, API, and SDK are pair-agnostic — point them at any token pair
+The collector, API, and SDK are pair-agnostic. Point them at any token pair
 Fynd can quote and the same depth/curve/route data falls out.
