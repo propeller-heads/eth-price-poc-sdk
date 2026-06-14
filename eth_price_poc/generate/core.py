@@ -1,7 +1,7 @@
 """Pair-agnostic block-snapshot generation: quote Fynd, sweep depth across
 trade sizes, and assemble one block's depth snapshot plus a persistence-ready
 payload. Shared by the hosted collector and by anyone running their own Fynd
-instance (see eth_price_poc.generate.run_local). No persistence here — the
+instance (see eth_price_poc.generate.run_local). No persistence here; the
 caller decides what to do with the snapshot.
 
 `cfg` is any object exposing the PairConfig fields (token_in/out with
@@ -95,7 +95,7 @@ def fynd_quote(
     options: dict = {"timeout_ms": cfg.fynd_timeout_ms, "min_responses": 1}
     if cfg.enable_encoding:
         # Per OpenAPI: slippage is decimal-string (e.g. "0.001" = 0.1%);
-        # transfer_from is the simplest path — no Permit2 signature needed.
+        # transfer_from is the simplest path, no Permit2 signature needed.
         options["encoding_options"] = {"slippage": cfg.slippage, "transfer_type": "transfer_from"}
     payload = {
         "orders": [{
@@ -139,7 +139,7 @@ def quote_price_in_per_out(quote: dict, amount_in_units: float, decimals_out: in
     if not ao:
         return None
     # float64 is exact to 2^53; max search size is 5e13 atomic units ($50M
-    # USDC), comfortably inside. Display-grade math only — never reuse this
+    # USDC), comfortably inside. Display-grade math only; never reuse this
     # for anything that signs or settles a transaction.
     out_units = int(ao) / 10 ** decimals_out
     return amount_in_units / out_units if out_units > 0 else None
@@ -281,7 +281,7 @@ def sweep_side(cfg: Config, side: str, spot: float, state: CollectorState, num_s
             "amount_out_net_gas": q.get("amount_out_net_gas"),
             "gas_estimate": q.get("gas_estimate"),
             "route": _route_meta_of(q),
-            # Full Fynd order quote — used for SQLite persistence (transaction,
+            # Full Fynd order quote, used for SQLite persistence (transaction,
             # fee_breakdown, gas_price, block.hash, per-leg swaps). Stripped
             # before this entry flows into latest.json.
             "_raw": q,
@@ -306,7 +306,7 @@ def anchor_target_from_sweep(cfg: Config, side: str, target_pct: float,
                               sweep: list[dict], spot: float, state: CollectorState,
                               max_iters: int = 5, tolerance: float = 0.02) -> dict | None:
     """Tight bisection seeded by the sweep's bracket for the given impact
-    target. Returns a real Fynd quote at (or close to) the target — no
+    target. Returns a real Fynd quote at (or close to) the target, no
     interpolated quote bytes. None when the sweep can't straddle the
     target (capped or failed)."""
     if not sweep or len(sweep) < 2:
@@ -393,7 +393,7 @@ def derive_level_from_sweep(sweep: list[dict], target_pct: float, side: str,
     # Direction-agnostic crossing scan: measured impact is not strictly
     # monotonic in size (route recomposition can dip impact as size grows), so
     # look for ANY sign change of (impact - target) between adjacent points and
-    # take the crossing at the smallest size — "how much can you trade before
+    # take the crossing at the smallest size: "how much can you trade before
     # X%". Interpolate in log(size) × impact space; the persisted raw quote is
     # the closer endpoint (anchored targets get exact bytes via bisection).
     for i in range(len(sweep) - 1):
@@ -489,7 +489,7 @@ def collect_snapshot(cfg: Config, state: CollectorState) -> tuple[dict | None, d
     # extra Fynd quotes to land a real measurement near the target instead
     # of carrying quote bytes from a "closer endpoint" of the sweep bracket.
     # If the sweep already shows a target is capped (no bracket), we skip
-    # the anchor — the bound=max record stays as-is.
+    # the anchor; the bound=max record stays as-is.
     ANCHOR_TARGETS = [0.5, 1.0, 5.0, 10.0, 25.0, 50.0]
     anchor_tasks: dict[tuple, Any] = {}
     with ThreadPoolExecutor(max_workers=cfg.max_workers) as ex:

@@ -40,7 +40,7 @@ def main(argv: list[str] | None = None) -> int:
                 "robust_mid": snap.get("robust_mid"),
             }))
         else:
-            print('{"error": "no snapshot — is Fynd running and warmed up?"}')
+            print('{"error": "no snapshot, is Fynd running and warmed up?"}')
         if args.once:
             return 0 if snap else 1
         time.sleep(args.interval)

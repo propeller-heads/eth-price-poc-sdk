@@ -159,7 +159,7 @@ class EthPricePoCClient:
     def _get_with_static_fallback(self, *, api_path: str, static_path: str | None,
                                   static_transform, allow_static: bool = True) -> dict:
         url = self.base + self._with_pair(api_path)
-        # data.json / coverage_static.json are the primary pair's snapshots —
+        # data.json / coverage_static.json are the primary pair's snapshots,
         # never serve them for another pair.
         if self.pair and self.pair != "ETH/USDC":
             allow_static = False
@@ -173,7 +173,7 @@ class EthPricePoCClient:
             raise EthPricePoCDataUnavailable(
                 f"live API at {url} unreachable and no static fallback available"
             )
-        # Static fallback: same origin, lowercase file. Generous timeout —
+        # Static fallback: same origin, lowercase file. Generous timeout,
         # the fallback bundle is bigger than a JSON API response.
         try:
             r = self.session.get(self.base + static_path, timeout=max(self.timeout, 30.0))

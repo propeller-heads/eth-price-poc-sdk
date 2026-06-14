@@ -1,7 +1,7 @@
 """Pair configuration for local data generation.
 
 The hosted collector passes its own richer config object (these fields are a
-structural subset). Standalone users build a PairConfig — ETH/USDC by default.
+structural subset). Standalone users build a PairConfig, ETH/USDC by default.
 """
 from __future__ import annotations
 
@@ -18,7 +18,7 @@ class TokenSpec:
         return int(units * 10 ** self.decimals)
 
 
-# Ethereum mainnet ETH/USDC — the default pair the hosted dataset serves.
+# Ethereum mainnet ETH/USDC: the default pair the hosted dataset serves.
 USDC = TokenSpec("0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48", "USDC", 6)
 WETH = TokenSpec("0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2", "WETH", 18)
 

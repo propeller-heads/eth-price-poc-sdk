@@ -1,4 +1,4 @@
-"""eth_price_poc — tiny Python client for the Price-of-Ethereum PoC dataset.
+"""eth_price_poc: tiny Python client for the Price-of-Ethereum PoC dataset.
 
 See README for the full schema. Quickstart:
 
