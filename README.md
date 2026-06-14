@@ -14,8 +14,8 @@ against the same API.
 ## Install
 
 ```bash
-pip install -e ./sdk
-# (Until we publish to PyPI; the package name will be `eth-price-poc-sdk`.)
+pip install "eth-price-poc-sdk @ git+https://github.com/propeller-heads/eth-price-poc-sdk.git"
+# or, from a clone of this repo:  pip install -e .
 ```
 
 ## Quickstart
@@ -23,9 +23,8 @@ pip install -e ./sdk
 ```python
 from eth_price_poc import client
 
-# Default base resolves to the public the site host site, which proxies through
-# to the live API. Override with
-# EthPricePoCClient(base=...) to point at your own deployment.
+# Default base is the live deployment (https://marketprice.xyz), which serves
+# the API and the site from one origin. Pass base=... to point at your own.
 c = client()
 
 snap   = c.latest()       # most recent block's full snapshot
@@ -35,7 +34,7 @@ hist   = c.history(limit=720)  # rolling window
 
 print(snap["block"], snap["spot_price"])
 
-# Optional pandas integration (install with: pip install -e ./sdk[pandas])
+# Optional pandas integration (install with: pip install "eth-price-poc-sdk[pandas]")
 df = c.history_as_dataframe(limit=720)
 print(df.head())
 ```
@@ -87,7 +86,7 @@ depth/curve/route data falls out. The download client (`client()`) needs no key
 
 ## What you can do with this that the website can't show you
 
-- Plot the **full bookmap** at custom resolution (the site renders 96
+- Plot the **full bookmap** at custom resolution (the site renders 176
   rows; the data lets you pick any number).
 - Extract **the per-block route metadata** (which Uniswap V3 pool the
   best $5M route actually used at block N).
@@ -95,7 +94,7 @@ depth/curve/route data falls out. The download client (`client()`) needs no key
   it have cost vs the next 10 blocks?"
 - Cross-reference against your own dataset (CEX prints, on-chain
   events, etc.).
-- Pull the dense `curve` array (~110 measured points per side on the hosted deployment; latest block via `latest()`, recent historical blocks via `curve_for_block()` / `/api/curve`)
+- Pull the dense `curve` array (~200 measured points per side on the hosted deployment; latest block via `latest()`, recent historical blocks via `curve_for_block()` / `/api/curve`)
   and build a custom depth chart.
 - Tap into `route_meta_by_level` to compare which protocols win at
   which trade sizes block by block.
@@ -135,7 +134,7 @@ levels: {                  # per-target depth (anchored or sweep-derived)
     "sell": { ... }
   }, ...
 }
-curve: {                   # dense measured points (~110 per side hosted)
+curve: {                   # dense measured points (~200 per side hosted)
   "buy":  [ { amount_usd, price, impact_pct, amount_in, amount_out,
               gas_estimate, route }, ... ]
   "sell": [ ... ]
