@@ -25,7 +25,7 @@ from eth_price_poc import client
 
 # Default base is the live deployment (https://marketprice.xyz), which serves
 # the API and the site from one origin. Pass base=... to point at your own.
-c = client()
+c = client()                       # ETH/USDC; use client(pair="ETH/USDT") for the USDT book
 
 snap   = c.latest()       # most recent block's full snapshot
 status = c.status()       # mode (live/static), blocks_behind, fynd health
@@ -151,6 +151,6 @@ was computed (`anchored_bisection` for headline targets,
 
 ## Roadmap
 
-ETH/USDC is the first pair. The collector, API, and SDK are
-pair-agnostic — point them at any token pair Fynd can quote and the
-same depth/curve/route data falls out.
+ETH is served priced in **USDC and USDT** today (`client(pair="ETH/USDT")`).
+The collector, API, and SDK are pair-agnostic — point them at any token pair
+Fynd can quote and the same depth/curve/route data falls out.

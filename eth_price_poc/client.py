@@ -31,11 +31,19 @@ class EthPricePoCClient:
     the static fallback. Override for local / private deployments.
     """
 
-    def __init__(self, base: str = DEFAULT_BASE, *, timeout: float = 10.0,
-                 session: requests.Session | None = None):
+    def __init__(self, base: str = DEFAULT_BASE, *, pair: str = "ETH/USDC",
+                 timeout: float = 10.0, session: requests.Session | None = None):
         self.base = base.rstrip("/")
+        self.pair = pair                  # quote pair: "ETH/USDC" (default) or "ETH/USDT"
         self.timeout = timeout
         self.session = session or requests.Session()
+
+    def _with_pair(self, path: str) -> str:
+        # ETH/USDC is the server default; only a non-primary pair needs ?pair=.
+        if not self.pair or self.pair == "ETH/USDC":
+            return path
+        sep = "&" if "?" in path else "?"
+        return f"{path}{sep}pair={urllib.parse.quote(self.pair, safe='')}"
 
     # ── core endpoints ────────────────────────────────────────────────
 
@@ -136,7 +144,7 @@ class EthPricePoCClient:
         block_num = snap.get("block")
         try:
             r = self.session.get(
-                f"{self.base}/api/curve?block={block_num}", timeout=self.timeout)
+                self.base + self._with_pair(f"/api/curve?block={block_num}"), timeout=self.timeout)
             if r.ok:
                 return (((r.json() or {}).get("curve") or {}).get(side)) or []
         except (requests.RequestException, json.JSONDecodeError):
@@ -150,7 +158,11 @@ class EthPricePoCClient:
 
     def _get_with_static_fallback(self, *, api_path: str, static_path: str | None,
                                   static_transform, allow_static: bool = True) -> dict:
-        url = self.base + api_path
+        url = self.base + self._with_pair(api_path)
+        # data.json / coverage_static.json are the primary pair's snapshots —
+        # never serve them for another pair.
+        if self.pair and self.pair != "ETH/USDC":
+            allow_static = False
         try:
             r = self.session.get(url, timeout=self.timeout)
             if r.ok:
