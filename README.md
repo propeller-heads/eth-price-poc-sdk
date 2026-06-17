@@ -63,6 +63,47 @@ pip install "eth-price-poc-sdk[generate]"
 export TYCHO_API_KEY=<your key>
 ```
 
+**2b. (optional) Reproduce the split routes.** The hosted dataset runs Fynd's
+`path_frank_wolfe` split solver for the headline depth levels, so large trades
+route across several pools. To get the same locally, launch Fynd with a
+`worker_pools.toml` that adds the split pool next to `bellman_ford` and limits
+hops to a liquid connector set:
+
+```toml
+[pools.bellman_ford_2_hops]
+algorithm = "bellman_ford"
+num_workers = 4
+task_queue_capacity = 1000
+max_hops = 2
+timeout_ms = 500
+connector_tokens = [
+  "0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2",  # WETH
+  "0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48",  # USDC
+  "0xdac17f958d2ee523a2206206994597c13d831ec7",  # USDT
+  "0x2260fac5e5542a773aa44fbcfedf7c193bc2c599",  # WBTC
+  "0x6b175474e89094c44da98b954eedeac495271d0f",  # DAI
+]
+
+[pools.path_frank_wolfe]
+algorithm = "path_frank_wolfe"
+num_workers = 4
+task_queue_capacity = 12
+max_hops = 2
+timeout_ms = 900
+connector_tokens = [
+  "0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2",  # WETH
+  "0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48",  # USDC
+  "0xdac17f958d2ee523a2206206994597c13d831ec7",  # USDT
+  "0x2260fac5e5542a773aa44fbcfedf7c193bc2c599",  # WBTC
+  "0x6b175474e89094c44da98b954eedeac495271d0f",  # DAI
+]
+```
+
+Pass it with `--worker-pools-config worker_pools.toml`. A small
+`task_queue_capacity` on the split pool keeps it from saturating CPU on every
+quote. Skip this and Fynd's default single pool still gives valid depth data,
+just single-path routes.
+
 **3. Generate snapshots** from your local Fynd:
 
 ```bash
