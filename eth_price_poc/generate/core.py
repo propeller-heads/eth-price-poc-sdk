@@ -82,6 +82,7 @@ def fynd_quote(
     amount: int,
     state: CollectorState | None = None,
     ctx: dict | None = None,
+    split: bool = False,
 ) -> dict | None:
     """POST /v1/quote.
 
@@ -92,7 +93,15 @@ def fynd_quote(
     it per quote.
     """
     sender = cfg.tenderly_from_address or SENDER_DEFAULT
-    options: dict = {"timeout_ms": cfg.fynd_timeout_ms, "min_responses": 1}
+    # split=True → min_responses=0: wait for ALL solver pools (or timeout) and
+    # keep the best route, so the path_frank_wolfe split solver is actually used.
+    # We only do this for the handful of headline "anchor" quotes (the depth
+    # levels shown on the site). The bulk 400-quote depth sweep and mid probes
+    # use min_responses=1 (return on the first/fast bellman_ford response) so the
+    # per-block collection stays inside the ~12s block budget. With 0 on every
+    # quote the cycle overruns the budget and the collector falls behind.
+    options: dict = {"timeout_ms": cfg.fynd_timeout_ms,
+                     "min_responses": 0 if split else 1}
     if cfg.enable_encoding:
         # Per OpenAPI: slippage is decimal-string (e.g. "0.001" = 0.1%);
         # transfer_from is the simplest path, no Permit2 signature needed.
@@ -235,18 +244,18 @@ def _route_meta_of(quote: dict | None) -> dict:
     return {"protocols": protos, "pool_count": len(pools), "hop_count": len(swaps), "pools": pools}
 
 
-def _quote_buy(cfg: Config, usd: float, state: CollectorState) -> tuple[dict | None, float | None]:
+def _quote_buy(cfg: Config, usd: float, state: CollectorState, split: bool = False) -> tuple[dict | None, float | None]:
     q = fynd_quote(cfg, cfg.token_in.address, cfg.token_out.address,
-                   cfg.token_in.atomic(usd), state, {"phase": "sweep", "side": "buy", "usd": usd})
+                   cfg.token_in.atomic(usd), state, {"phase": "sweep", "side": "buy", "usd": usd}, split=split)
     if not q:
         return None, None
     price = quote_price_in_per_out(q, usd, cfg.token_out.decimals)
     return q, price
 
 
-def _quote_sell(cfg: Config, usd: float, spot: float, state: CollectorState) -> tuple[dict | None, float | None]:
+def _quote_sell(cfg: Config, usd: float, spot: float, state: CollectorState, split: bool = False) -> tuple[dict | None, float | None]:
     q = fynd_quote(cfg, cfg.token_out.address, cfg.token_in.address,
-                   cfg.token_out.atomic(usd / spot), state, {"phase": "sweep", "side": "sell", "usd": usd})
+                   cfg.token_out.atomic(usd / spot), state, {"phase": "sweep", "side": "sell", "usd": usd}, split=split)
     if not q:
         return None, None
     ao = q.get("amount_out")
@@ -326,8 +335,10 @@ def anchor_target_from_sweep(cfg: Config, side: str, target_pct: float,
     best_diff = float("inf")
     for _ in range(max_iters):
         mid_usd = math.exp((math.log(lo_usd) + math.log(hi_usd)) / 2)
-        q, price = (_quote_buy(cfg, mid_usd, state) if side == "buy"
-                    else _quote_sell(cfg, mid_usd, spot, state))
+        # Anchors are the headline depth levels shown on the site; run them
+        # through the split (path_frank_wolfe) solver via min_responses=0.
+        q, price = (_quote_buy(cfg, mid_usd, state, split=True) if side == "buy"
+                    else _quote_sell(cfg, mid_usd, spot, state, split=True))
         if not q or price is None or not is_finite_number(price):
             break
         imp = impact_pct(price, spot, side)
@@ -496,8 +507,12 @@ def collect_snapshot(cfg: Config, state: CollectorState) -> tuple[dict | None, d
         for target in ANCHOR_TARGETS:
             for side in ("buy", "sell"):
                 sweep = sweep_buy if side == "buy" else sweep_sell
+                # max_iters=3 (not the default 5): each anchor iter is a slow
+                # split (path_frank_wolfe) quote, and the sweep already brackets
+                # the target tightly, so 3 lands near-target while keeping the
+                # per-block cycle inside the ~12s budget on the live machine.
                 anchor_tasks[(target, side)] = ex.submit(
-                    anchor_target_from_sweep, cfg, side, target, sweep, spot, state,
+                    anchor_target_from_sweep, cfg, side, target, sweep, spot, state, 3,
                 )
         for (target, side), fut in anchor_tasks.items():
             try:
